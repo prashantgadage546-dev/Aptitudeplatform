@@ -10,25 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: 82.112.238.89
+          host: ${{ secrets.VPS_HOST }}
           username: root
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /var/www/aptitude-backend || exit 1
+            cd /var/www/aptitude-backend
 
-            if [ ! -d ".git" ]; then
-              git clone https://github.com/prashantgadage/aptitude-backend.git .
-            else
-              git fetch origin
-              git reset --hard origin/main
-            fi
+            git fetch origin
+            git reset --hard origin/main
 
-            npm install
-            pm2 start index.js --name aptitude-backend --update-env || pm2 restart aptitude-backend
+            cd aptitude-final/backend
 
+            npm install --production
+
+            pm2 describe backend > /dev/null \
+              && pm2 restart backend \
+              || pm2 start index.js --name backend
