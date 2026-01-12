@@ -25,8 +25,10 @@ jobs:
             if [ ! -d ".git" ]; then
               git clone https://github.com/prashantgadage/aptitude-backend.git .
             else
-              git pull origin main
+              git fetch origin
+              git reset --hard origin/main
             fi
 
             npm install
-            pm2 restart aptitude-backend || pm2 start backend/index.js --name aptitude-backend
+            pm2 start index.js --name aptitude-backend --update-env || pm2 restart aptitude-backend
+
